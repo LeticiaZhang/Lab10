@@ -1,0 +1,58 @@
+---
+title: "Lab 10"
+author: "Can Zhang"
+date: "2024-11-15"
+output: "github_document"
+---
+# Load Packages and Dataset
+```{r}
+
+library(haven)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(car)
+library(moments)
+library(boot)
+library(bruceR)
+library(psych)
+load("C:/Users/zhang/OneDrive/2024-25/PSY329/ICPSR_38964-V2/ICPSR_38964/DS0001/38964-0001-Data.rda")
+dataset <- da38964.0001
+rm(da38964.0001)
+
+```
+
+# Data Cleaning
+```{r}
+
+#Select variables related to my research question
+my_dataset <- dataset %>% select(RELIG_ATTEND, RELIG_IMP, RACEREC, LONELY_A, LONELY_B, LONELY_C)
+my_dataset <- drop_na(my_dataset)
+summary(my_dataset)
+
+#recode and composite the variables
+my_dataset$RELIG_ATTEND <- 5 - as.numeric(my_dataset$RELIG_ATTEND)
+my_dataset$RELIG_IMP <- 5 - as.numeric(my_dataset$RELIG_IMP)
+my_dataset$RELIG_ENGAGEMENT <- (my_dataset$RELIG_ATTEND + my_dataset$RELIG_IMP) / 2
+
+my_dataset$LONELY_A <- as.numeric(my_dataset$LONELY_A)
+my_dataset$LONELY_B <- as.numeric(my_dataset$LONELY_B)
+my_dataset$LONELY_C <- as.numeric(my_dataset$LONELY_C)
+my_dataset$LONELY <- (my_dataset$LONELY_A + my_dataset$LONELY_B + my_dataset$LONELY_C) / 3
+
+```
+
+# Reliability and Factor Analysis
+```{r}
+
+# Cronbach's Alpha
+Alpha(my_dataset, vars = c("LONELY_A", "LONELY_B", "LONELY_C"))
+
+# Factor Analysis
+EFA(my_dataset, vars = c("LONELY_A", "LONELY_B", "LONELY_C"), method = "pa", plot.scree = TRUE, nfactors = c("parallel"))
+
+# Spearman's Rho
+spearman_rho <- cor(my_dataset$RELIG_ATTEND, my_dataset$RELIG_IMP, method = "spearman")
+print(spearman_rho)
+
+```
